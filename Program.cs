@@ -22,24 +22,35 @@ namespace Cryptography
                 {
                     case "1":
                         var result = ChooseMode<MyDESAlgo>();
-                        ChooseSource(result);
-                        result.EncryptStringToBytes();
-                        WriteCryptoToFile(result);
-                        result.DecryptStringFromBytes();
+                        result.obj.key = result.key;
+                        result.obj.LenthKey = result.length;
+                        result.obj.mode = result.mode;
+                        ChooseSource(result.obj);
+                        result.obj.EncryptStringToBytes();
+                        WriteCryptoToFile(result.obj);
+                        result.obj.DecryptStringFromBytes();
                         break;
                     case "2":
                         var res = ChooseMode<MyAESAlgo>();
+                        res.obj.key = res.key;
+                        res.obj.LenthKey = res.length;
+                        res.obj.mode = res.mode;
+                        ChooseSource(res.obj);
+                        res.obj.EncryptStringToBytes();
+                        WriteCryptoToFile(res.obj);
+                        res.obj.DecryptStringFromBytes();
                         break;
                     default:
                         Console.WriteLine("Unknown command");
                         break;
                 }
-            } while (Console.ReadLine()!="N");
+            } while (Console.ReadLine() != "N");
         }
-        static T ChooseMode<T>() where T : MyAESAlgo,MyDESAlgo,  new()
+        static (T obj, CipherMode mode, byte[] key, int length) ChooseMode<T>() where T : ICryptoAlgo,  new()
         {
             do
             {
+                var result = (obj: new T(), mode: CipherMode.CBC, key: new byte[0], length: 0);
                 Console.WriteLine("Choose Mode to Encrypt:");
                 Console.WriteLine("1:CBC");
                 Console.WriteLine("2:CTS");
@@ -48,13 +59,22 @@ namespace Cryptography
                 {
                     case "1":
                         var res = EnterKey();
-                        return new T() { mode = CipherMode.CBC, key = res.key, LenthKey=res.length };
+                        result.mode = CipherMode.CBC;
+                        result.key = res.key;
+                        result.length = res.length;
+                        return result;
                     case "2":
-                        var rest = EnterKey();
-                        return new T() { mode = CipherMode.CTS, key = rest.key, LenthKey = rest.length };
+                        var rep = EnterKey();
+                        result.mode = CipherMode.CTS;
+                        result.key = rep.key;
+                        result.length = rep.length;
+                        return result;
                     case "3":
-                        var resp = EnterKey();
-                        return new T() { mode = CipherMode.ECB, key = resp.key, LenthKey = resp.length };
+                        var reps = EnterKey();
+                        result.mode = CipherMode.ECB;
+                        result.key = reps.key;
+                        result.length = reps.length;
+                        return result;
                     default:
                         Console.WriteLine("Unknown command");
                         break;
