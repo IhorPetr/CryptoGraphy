@@ -44,7 +44,8 @@ namespace Cryptography
                         Console.WriteLine("Unknown command");
                         break;
                 }
-            } while (Console.ReadLine() != "N");
+                Console.WriteLine("Do you want Leave Program?[Y/N]");
+            } while (Char.ToUpper(Convert.ToChar(Console.Read())) !=  'N');
         }
         static (T obj, CipherMode mode, byte[] key, int length) ChooseMode<T>() where T : ICryptoAlgo,  new()
         {
@@ -84,9 +85,9 @@ namespace Cryptography
         }
         static (byte[] key,int length) EnterKey()
         {
-            Console.WriteLine("Do you Want Enter Secret Key?");
+            Console.WriteLine("Do you Want Enter Secret Key?[Y/N]");
             var result = (key:new byte[0], length:0);
-            if(Console.ReadLine()=="Y")
+            if(Char.ToUpper(Convert.ToChar(Console.Read())) != 'Y')
             {
 
                 Console.Write("Enter Length your secret key: ");
@@ -126,8 +127,8 @@ namespace Cryptography
         }
         static void WriteCryptoToFile(ICryptoAlgo crypto)
         {
-            Console.WriteLine("Do you Write Crypto to File?");
-            if (Console.ReadLine() == "Y")
+            Console.WriteLine("Do you Write Crypto to File?[Y/N]");
+            if (Char.ToUpper(Convert.ToChar(Console.Read())) != 'Y')
             {
                 crypto.WriteCryptoToFile();
             }

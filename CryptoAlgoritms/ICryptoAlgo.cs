@@ -7,7 +7,6 @@ namespace Cryptography.CryptoAlgoritms
 {
     public interface ICryptoAlgo
     {
-
         void ChooseMode(CryptoStatus status);
         void WriteCryptoToFile();
     }
