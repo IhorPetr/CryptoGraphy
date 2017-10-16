@@ -1,4 +1,4 @@
-﻿namespace KalynaCipher
+﻿namespace KalynaCipher.KalynaSharp
 {
     public class KalynaConsts
     {

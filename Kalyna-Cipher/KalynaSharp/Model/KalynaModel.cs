@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace KalynaCipher.Model
+namespace KalynaCipher.KalynaSharp.Model
 {
     public class KalynaModel
     {

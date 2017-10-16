@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using KalynaCipher.Model;
+using KalynaCipher.KalynaSharp.Model;
 
-namespace KalynaCipher
+namespace KalynaCipher.KalynaSharp
 {
-    public interface IKalina
+    public interface IKalyna
     {
         KalynaModel KalynaInit(UInt32 block_size, UInt32 key_size);
         void KalynaKeyExpand(UInt64 key, KalynaModel ctx);

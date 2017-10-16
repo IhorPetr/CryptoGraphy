@@ -6,6 +6,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Debug\**" />
+    <Compile Remove="Kalyna-Cipher\**" />
+    <Compile Remove="KalynaByC\**" />
+    <Compile Remove="Release\**" />
+    <Compile Remove="x64\**" />
+    <EmbeddedResource Remove="Debug\**" />
+    <EmbeddedResource Remove="Kalyna-Cipher\**" />
+    <EmbeddedResource Remove="KalynaByC\**" />
+    <EmbeddedResource Remove="Release\**" />
+    <EmbeddedResource Remove="x64\**" />
+    <None Remove="Debug\**" />
+    <None Remove="Kalyna-Cipher\**" />
+    <None Remove="KalynaByC\**" />
+    <None Remove="Release\**" />
+    <None Remove="x64\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="Kalyna-Cipher\KalynaCipher.csproj" />
   </ItemGroup>
 

@@ -4,8 +4,11 @@ using System.Security.Cryptography;
 using Cryptography.CryptoAlgoritms;
 using Cryptography.CryptoAlgoritms.Domain;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Cryptography.CryptoAlgoritms.Impl;
+
 
 namespace Cryptography
 {
