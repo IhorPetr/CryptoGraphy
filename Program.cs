@@ -22,6 +22,7 @@ namespace Cryptography
                 Console.WriteLine("1:DES");
                 Console.WriteLine("2:AES");
                 Console.WriteLine("3:RSA");
+                Console.WriteLine("4:MD5");
                 switch (Console.ReadLine())
                 {
                     case "1":
@@ -49,6 +50,13 @@ namespace Cryptography
                         algo.EncryptStringToBytes();
                         WriteCryptoToFile(algo);
                         algo.DecryptStringFromBytes();
+                        break;
+                    case "4":
+                        var MDA5 = new MyMD5Algo();
+                        MDA5.hash = MDA5.getMd5Hash(MDA5.Message);
+                        WriteCryptoToFile(MDA5);
+                        Console.WriteLine("Write message to compare the hash");
+                        MDA5.verifyMd5Hash(Console.ReadLine(),MDA5.hash);
                         break;
                     default:
                         Console.WriteLine("Unknown command");

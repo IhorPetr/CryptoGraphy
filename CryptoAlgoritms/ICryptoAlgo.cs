@@ -9,7 +9,5 @@ namespace Cryptography.CryptoAlgoritms
     {
         void ChooseMode(CryptoStatus status);
         void WriteCryptoToFile();
-        void EncryptStringToBytes();
-        void DecryptStringFromBytes();
     }
 }
