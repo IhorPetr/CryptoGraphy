@@ -41,7 +41,6 @@ namespace Cryptography.CryptoAlgoritms.Impl
         public string getMd5Hash(string input)
         {
             byte[] data = myTripleMD5.ComputeHash(Encoding.Default.GetBytes(Message));
-
             // Create a new Stringbuilder to collect the bytes
             // and create a string.
             StringBuilder sBuilder = new StringBuilder();
