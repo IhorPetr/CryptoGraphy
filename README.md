@@ -2,7 +2,7 @@
 1.Symmetric algoritms encryption:
  * AES
  * DES
-2.Asymmetric algoritms encryption:__
+2.Asymmetric algoritms encryption:<br />
  * RSA
-3.Hashing algoritms:__
+3.Hashing algoritms:<br />
  * MD5
