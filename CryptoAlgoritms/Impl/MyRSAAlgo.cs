@@ -44,13 +44,10 @@ namespace Cryptography.CryptoAlgoritms.Impl
 
                 encrypted = this.myTripleRSA.Encrypt(dataToEncrypt, false);
             }
-            //Catch and display a CryptographicException  
-            //to the console.
             catch (CryptographicException e)
             {
                 Console.WriteLine(e.Message);
             }
-            //  this.myTripleRSA.Encrypt();
         }
         public void WriteCryptoToFile()
         {
@@ -64,15 +61,13 @@ namespace Cryptography.CryptoAlgoritms.Impl
             try
             {
                 string plaintext = null;
-                byte[] dataToDecript;
+                byte[] dataToDecript=null;
                 this.myTripleRSA.ImportParameters(this.myTripleRSA.ExportParameters(true));
 
                 dataToDecript = this.myTripleRSA.Decrypt(encrypted, false);
                 plaintext = ByteConverter.GetString(dataToDecript);
                 Console.WriteLine($"Result encryption is: {plaintext}");
             }
-            //Catch and display a CryptographicException  
-            //to the console.
             catch (CryptographicException e)
             {
                 Console.WriteLine(e.Message);

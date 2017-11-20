@@ -21,6 +21,7 @@ namespace Cryptography
                 Console.WriteLine("Choose Crypto Algoritm");
                 Console.WriteLine("1:DES");
                 Console.WriteLine("2:AES");
+                Console.WriteLine("3:RSA");
                 switch (Console.ReadLine())
                 {
                     case "1":
@@ -42,6 +43,12 @@ namespace Cryptography
                         res.obj.EncryptStringToBytes();
                         WriteCryptoToFile(res.obj);
                         res.obj.DecryptStringFromBytes();
+                        break;
+                    case "3":
+                        var algo = new MyRSAAlgo();
+                        algo.EncryptStringToBytes();
+                        WriteCryptoToFile(algo);
+                        algo.DecryptStringFromBytes();
                         break;
                     default:
                         Console.WriteLine("Unknown command");
