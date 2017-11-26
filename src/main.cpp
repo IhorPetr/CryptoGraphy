@@ -128,6 +128,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 			break;
 		case 'e':
 			arguments->enc_flag = ENC;
+			break;
 			
 		case 't':
 			if (!strcmp("AES", arg))
@@ -158,16 +159,13 @@ int main(int argc, char** argv){
 		.key 		= 	0,
 		.fd_src 	= 	0,
 		.fd_dst 	= 	0,
-		.enc_flag 	= 	ENONE,
-		.alg_type 	= 	ANONE
+		.enc_flag 	= 	ENC,
+		.alg_type 	= 	AES
 	};
 	
 	/* Parse our arguments; every option seen by parse_opt will
 	   be reflected in arguments. */
 	argp_parse (&argp, argc, argv, 0, 0, &arguments);
-	//init parameters
-		
-	//if key is not specified - generate key automatically
 		
 	block_cipher *block = NULL;
 	switch(arguments.alg_type){
