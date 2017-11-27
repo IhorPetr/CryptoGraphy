@@ -5,9 +5,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "rijndael.h"
-//#include "anubis.h"
+#include "anubis.h"
+#include "kalyna.h"
 
 #define INP_STR "This string should be encrypted"
+#define IS_PRINTABLE(c) (c > 0x1f && c < 0x7f)?c:'.'
 #define ENCR_MSG(inp, outp, key, obj)	\
 	obj->init(key,cppcrypto::block_cipher::direction::encryption); \
 	obj->encrypt_block(inp, (unsigned char*) outp); 
@@ -151,6 +153,27 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 /* Our argp parser. */
 static struct argp argp = { options, parse_opt, 0, 0 };
 
+static void print_bin(unsigned char *data, int data_len){
+	
+	int i, k = 1;
+	char arr[9] = { 0 };
+	
+	printf("%08p: ", data);
+	for ( i = 0; i < data_len; i++){
+		
+		arr[k - 1] = IS_PRINTABLE(data[i]), k++;
+		printf("0x%02x ", data[i]);
+		
+		if (k == 8){
+			k = 1;
+			printf("|%s|\n%08p: ", arr, data + i);
+			memset(arr, 0, 9);
+		}
+	}
+	printf("|%s|\n", arr); fflush(stdout);
+	
+}
+
 /*
  * usage <appname> [-f] <filepath> -d [<path/to/outp/file>] -k [<key>] -d [decrypt] -e [encrypt] -t [<des>|<aes128/192/256>|<kal128/256/512>]
  */
@@ -170,22 +193,34 @@ int main(int argc, char** argv){
 	block_cipher *block = NULL;
 	switch(arguments.alg_type){
 		case AES:
-			block = new rijndael128_128();
+			block = new rijndael128_256();
 			break;
 		case DES:
-			block = new rijndael128_128();
+			block = new anubis256();
 			break;
 		case KAL:
-			//block = new anubis128();
+			block = new kalyna128_256();
 			break;
 		default:
+			printf("ERROR: incorect chipher type\n");
+			return -1;
 			break;
 	}
 	
 	out_buf = malloc(inp_size);
-	process_msg(block, inp_buf, out_buf, arguments.key, inp_size,  arguments.enc_flag);
+	//process_msg(block, inp_buf, out_buf, arguments.key, inp_size,  ENC);
+	ENCR_MSG( inp_buf, out_buf, arguments.key, block);
+
+	printf("out_buf:\n");
+	print_bin(out_buf, inp_size);
+
+	memset(inp_buf, 0, inp_size);
+	//process_msg(block, out_buf, inp_buf, arguments.key, inp_size,  DEC);
+	DECR_MSG( out_buf, inp_buf, arguments.key, block);
 	
-	printf("out_buf = %s", out_buf);
+	printf("inp_buf:\n", inp_buf);
+	print_bin(inp_buf, inp_size);
+
 	//save to file or output to console
 	//save generated key to file or print to console
 	
