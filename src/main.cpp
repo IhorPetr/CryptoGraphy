@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <argp.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -88,13 +90,21 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 	struct stat fstats;
 	int err = 0;
 	int arg_size = 0;
-	
-  /* Get the input argument from argp_parse, which we
-     know is a pointer to our arguments structure. */
-  arguments_t *arguments = (arguments_t*) state->input;
+	struct timeval tv;
+	struct timezone tz;
 
-  switch (key)
-    {
+	/* Get the input argument from argp_parse, which we
+	know is a pointer to our arguments structure. */
+	gettimeofday(&tv, &tz);
+	arguments_t *arguments = (arguments_t*) state->input;
+	if (!arguments->key){
+		srandom(tv.tv_usec);
+		arguments->key = malloc(1);
+		*arguments->key = random();
+	}
+
+	switch (key)
+	{
 		case 'f':
 			if ( (arguments->fd_src = open(arg, O_RDWR)) < 0 ){
 				printf("ERROR: no such file: %s\n", arg);
@@ -119,6 +129,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 			break;
 		case 'k':
 			arg_size = strlen(arg);
+			
+			if (arguments->key)
+				free(arguments->key);
+			
 			arguments->key = malloc(arg_size);
 			memcpy(arguments->key, arg, arg_size);
 			break;
@@ -143,8 +157,8 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 			break;
 		default:
 			break;
-    }
-  return 0;
+	}
+	return 0;
 }
 
 /* Our argp parser. */
