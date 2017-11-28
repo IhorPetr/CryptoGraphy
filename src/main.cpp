@@ -10,12 +10,6 @@
 
 #define INP_STR "This string should be encrypted"
 #define IS_PRINTABLE(c) (c > 0x1f && c < 0x7f)?c:'.'
-#define ENCR_MSG(inp, outp, key, obj)	\
-	obj->init(key,cppcrypto::block_cipher::direction::encryption); \
-	obj->encrypt_block(inp, (unsigned char*) outp); 
-#define DECR_MSG(inp, outp, key, obj)	\
-	obj->init(key,cppcrypto::block_cipher::direction::decryption); \
-	obj->decrypt_block(inp, (unsigned char*) outp);
 
 using namespace cppcrypto;
 
@@ -78,9 +72,12 @@ static void process_msg(block_cipher* obj,
 	for(i = 0; i < ccount; i++){
 		
 		if (flag == ENC){
-			ENCR_MSG(inp + (i*16), out + (i*16), key, obj);
-		} else
-			DECR_MSG(inp + (i*16), out + (i*16), key, obj);
+			obj->init(key,cppcrypto::block_cipher::direction::encryption);
+			obj->encrypt_block(inp + (i*16), out + (i*16)); 
+		} else{
+			obj->init(key,cppcrypto::block_cipher::direction::decryption);
+			obj->decrypt_block(inp + (i*16), out + (i*16));
+		}
 	}
 		
 }
@@ -208,20 +205,18 @@ int main(int argc, char** argv){
 	}
 	
 	out_buf = malloc(inp_size);
-	//process_msg(block, inp_buf, out_buf, arguments.key, inp_size,  ENC);
-	ENCR_MSG( inp_buf, out_buf, arguments.key, block);
+	process_msg(block, inp_buf, out_buf, arguments.key, inp_size,  ENC);
 
 	printf("out_buf:\n");
 	print_bin(out_buf, inp_size);
 
 	memset(inp_buf, 0, inp_size);
-	//process_msg(block, out_buf, inp_buf, arguments.key, inp_size,  DEC);
-	DECR_MSG( out_buf, inp_buf, arguments.key, block);
+	process_msg(block, out_buf, inp_buf, arguments.key, inp_size,  DEC);
 	
 	printf("inp_buf:\n", inp_buf);
 	print_bin(inp_buf, inp_size);
 
-	//save to file or output to console
+	//save to file
 	//save generated key to file or print to console
 	
 	return 0;
