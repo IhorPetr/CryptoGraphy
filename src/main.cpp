@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <math.h>
 #include "rijndael.h"
 #include "anubis.h"
 #include "kalyna.h"
@@ -18,6 +19,7 @@ using namespace cppcrypto;
 /* The options we understand. */
 
 enum alg_type_e{
+	PRIME,
 	DES,
 	AES,
 	KAL,
@@ -33,6 +35,7 @@ static struct argp_option options[] = {
 	{	"src-file",		'f',	"<path to file>",		0,		"source file with text message" },
 	{	"dst-file",		'o',	"<path to file>",		0,		"file. to which messge wil be outputted" },
 	{	"key",			'k',	"<key string>",			0,		"specify key, which will be aplied during encription/decription" },
+	{	"number",		'n',	"<integer>",			0,		"specify number to check for primeness" },
 	{	"encrypt",		'e',	0,						0,		"encrypt message" },
 	{	"decrypt",		'd',	0,						0,		"decrypt message" },
 	{	0,				't',	"<AES|DES|KAL>",		0,		"alhorythm type" },
@@ -45,6 +48,7 @@ struct arguments_s
   char 			*key;                
   int 			fd_src; 
   int 			fd_dst;
+  int			numb;
   enc_flag_e	enc_flag;
   alg_type_e 	alg_type;
 };
@@ -150,10 +154,15 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 				arguments->alg_type = DES;
 			else if (!strcmp("KAL", arg))
 				arguments->alg_type = KAL;
+			else if (!strcmp("PRIME", arg))
+				arguments->alg_type = PRIME;
 			else{
 				printf("ERROR: incorrect alhorythm type!\n please specify DES|AES|KAL\n", arg);
 				exit(-1);
 			}
+			break;
+		case 'n':
+			arguments->numb = strtoul(arg, NULL, 10);
 			break;
 		default:
 			break;
@@ -185,14 +194,28 @@ static void print_bin(unsigned char *data, int data_len){
 	
 }
 
+static int check_primness(int n){
+
+	int i;
+	int sqrt_n = sqrt(n);
+	
+	for(i = 2; i < sqrt_n; i++){
+		
+		if (!(n%i))
+			return 0;
+	}
+	
+	return 1;
+}
 /*
  * usage <appname> [-f] <filepath> -d [<path/to/outp/file>] -k [<key>] -d [decrypt] -e [encrypt] -t [<des>|<aes128/192/256>|<kal128/256/512>]
  */
 int main(int argc, char** argv){
 	arguments_t arguments = {
-		.key 		= 	0,
+		.key 		= 	NULL,
 		.fd_src 	= 	0,
 		.fd_dst 	= 	0,
+		.numb		=   0,
 		.enc_flag 	= 	ENC,
 		.alg_type 	= 	AES
 	};
@@ -203,12 +226,15 @@ int main(int argc, char** argv){
 		
 	block_cipher *block = NULL;
 	switch(arguments.alg_type){
+		case PRIME:
+			printf("number %d %s", arguments.numb, 
+					check_primness(arguments.numb)?"is prime\n":"is not prime\n");
+			return 0;
+					
 		case AES:
 			block = new rijndael128_256();
-			break;
 		case DES:
 			block = new anubis256();
-			break;
 		case KAL:
 			block = new kalyna128_256();
 			break;
