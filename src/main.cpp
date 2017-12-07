@@ -212,7 +212,7 @@ static int check_primness(int n){
 	int i;
 	int sqrt_n = sqrt(n);
 	
-	for(i = 2; i < sqrt_n; i++){
+	for(i = 2; i <= sqrt_n; i++){
 		
 		if (!(n%i))
 			return 0;
