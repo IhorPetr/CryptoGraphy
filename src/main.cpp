@@ -10,6 +10,9 @@
 #include "rijndael.h"
 #include "anubis.h"
 #include "kalyna.h"
+#include "md5.h"
+#include "sha256.h"
+#include "kupyna.h"
 
 #define INP_STR "This string should be encrypted"
 #define IS_PRINTABLE(c) (c > 0x1f && c < 0x7f)?c:'.'
@@ -22,8 +25,11 @@ enum alg_type_e{
 	PRIME,
 	DES,
 	AES,
-	KAL,
-	ANONE
+	KAL = 4,
+	MD5 = 8,
+	SHA256 = 16,
+	KUPYNA = 32,
+	ANONE = 64
 };
 enum enc_flag_e{
 	ENC,
@@ -38,7 +44,7 @@ static struct argp_option options[] = {
 	{	"number",		'n',	"<integer>",			0,		"specify number to check for primeness" },
 	{	"encrypt",		'e',	0,						0,		"encrypt message" },
 	{	"decrypt",		'd',	0,						0,		"decrypt message" },
-	{	0,				't',	"<AES|DES|KAL>",		0,		"alhorythm type" },
+	{	0,				't',	"<AES|DES|KAL|PRIME|MD5|SHA256|KUPYNA>",		0,		"alhorythm type" },
 	{ 0 }
 };
 
@@ -58,6 +64,7 @@ typedef struct arguments_s arguments_t;
 int inp_size;
 char *inp_buf = NULL;
 char *out_buf = NULL;
+char *hash_buf = NULL;
 char *key = NULL;
 
 /*/****************************************static functions declaration**************************/
@@ -156,6 +163,12 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 				arguments->alg_type = KAL;
 			else if (!strcmp("PRIME", arg))
 				arguments->alg_type = PRIME;
+			else if (!strcmp("MD5", arg))
+				arguments->alg_type = MD5;
+			else if (!strcmp("SHA256", arg))
+				arguments->alg_type = SHA256;
+			else if (!strcmp("KUPYNA", arg))
+				arguments->alg_type = KUPYNA;
 			else{
 				printf("ERROR: incorrect alhorythm type!\n please specify DES|AES|KAL\n", arg);
 				exit(-1);
@@ -217,20 +230,27 @@ int main(int argc, char** argv){
 		.fd_dst 	= 	0,
 		.numb		=   0,
 		.enc_flag 	= 	ENC,
-		.alg_type 	= 	AES
+		.alg_type 	= 	ANONE
 	};
 	
-	/* Parse our arguments; every option seen by parse_opt will
+	/* Parse our arguments; 1every option seen by parse_opt will
 	   be reflected in arguments. */
 	argp_parse (&argp, argc, argv, 0, 0, &arguments);
 		
 	block_cipher *block = NULL;
+	crypto_hash *hash = NULL;
 	switch(arguments.alg_type){
 		case PRIME:
 			printf("number %d %s", arguments.numb, 
 					check_primness(arguments.numb)?"is prime\n":"is not prime\n");
 			return 0;
-					
+		case MD5:
+			hash = new md5();
+		case SHA256:
+			hash = new sha256();
+		case KUPYNA:
+			hash = new kupyna(256);
+			break;
 		case AES:
 			block = new rijndael128_256();
 		case DES:
@@ -244,20 +264,27 @@ int main(int argc, char** argv){
 			break;
 	}
 	
-	out_buf = malloc(inp_size);
-	process_msg(block, inp_buf, out_buf, arguments.key, inp_size,  ENC);
-
-	printf("out_buf:\n");
-	print_bin(out_buf, inp_size);
-
-	memset(inp_buf, 0, inp_size);
-	process_msg(block, out_buf, inp_buf, arguments.key, inp_size,  DEC);
+	if (arguments.alg_type & (AES | DES | KAL)){
 	
-	printf("inp_buf:\n", inp_buf);
-	print_bin(inp_buf, inp_size);
+		out_buf = malloc(inp_size);
+		process_msg(block, inp_buf, out_buf, arguments.key, inp_size,  ENC);
 
-	//save to file
-	//save generated key to file or print to console
+		printf("out_buf:\n");
+		print_bin(out_buf, inp_size);
+
+		memset(inp_buf, 0, inp_size);
+		process_msg(block, out_buf, inp_buf, arguments.key, inp_size,  DEC);
+		
+		printf("inp_buf:\n", inp_buf);
+		print_bin(inp_buf, inp_size);
+	} else 	if (arguments.alg_type & (MD5 | SHA256 | KUPYNA)){
+		hash_buf = malloc(32);
+		memset(hash_buf, 0, 32);
+		
+		hash->hash_string(inp_buf, inp_size, hash_buf);
+		printf("hash of specified file:");
+		print_bin(hash_buf, 32);
+	}
 	
 	return 0;
 }
