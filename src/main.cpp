@@ -246,15 +246,19 @@ int main(int argc, char** argv){
 			return 0;
 		case MD5:
 			hash = new md5();
+			break;
 		case SHA256:
 			hash = new sha256();
+			break;
 		case KUPYNA:
 			hash = new kupyna(256);
 			break;
 		case AES:
 			block = new rijndael128_256();
+			break;
 		case DES:
 			block = new anubis256();
+			break;
 		case KAL:
 			block = new kalyna128_256();
 			break;
