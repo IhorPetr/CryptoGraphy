@@ -29,7 +29,8 @@ enum alg_type_e{
 	MD5 = 8,
 	SHA256 = 16,
 	KUPYNA = 32,
-	ANONE = 64
+	ANONE = 64,
+	EUCLID = 128
 };
 enum enc_flag_e{
 	ENC,
@@ -44,7 +45,9 @@ static struct argp_option options[] = {
 	{	"number",		'n',	"<integer>",			0,		"specify number to check for primeness" },
 	{	"encrypt",		'e',	0,						0,		"encrypt message" },
 	{	"decrypt",		'd',	0,						0,		"decrypt message" },
-	{	0,				't',	"<AES|DES|KAL|PRIME|MD5|SHA256|KUPYNA>",		0,		"alhorythm type" },
+	{	"d1",			'l',	"<integer>",			0,		"first figit for euclid" },
+	{	"d2",			'h',	"<integer>",			0,		"sedond figit for euclid" },
+	{	0,				't',	"<AES|DES|KAL|PRIME|MD5|SHA256|KUPYNA|EUCLID>",		0,		"alhorythm type" },
 	{ 0 }
 };
 
@@ -55,6 +58,8 @@ struct arguments_s
   int 			fd_src; 
   int 			fd_dst;
   int			numb;
+  unsigned int	d1;
+  unsigned int	d2;
   enc_flag_e	enc_flag;
   alg_type_e 	alg_type;
 };
@@ -169,6 +174,8 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 				arguments->alg_type = SHA256;
 			else if (!strcmp("KUPYNA", arg))
 				arguments->alg_type = KUPYNA;
+			else if (!strcmp("EUCLID", arg))
+				arguments->alg_type = EUCLID;
 			else{
 				printf("ERROR: incorrect alhorythm type!\n please specify DES|AES|KAL\n", arg);
 				exit(-1);
@@ -177,6 +184,13 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		case 'n':
 			arguments->numb = strtoul(arg, NULL, 10);
 			break;
+		case 'l':
+			arguments->d1 = strtoul(arg, NULL, 10);
+			break;
+		case 'h':
+			arguments->d2 = strtoul(arg, NULL, 10);
+			break;
+
 		default:
 			break;
 	}
@@ -220,6 +234,19 @@ static int check_primness(int n){
 	
 	return 1;
 }
+
+unsigned int euclid(unsigned int d1,unsigned int d2){
+	
+	while(d1 != d2){
+		if(d1 > d2)
+			d1 -= d2;
+		else
+			d2 -= d1;
+	}
+	
+	return d1;
+		
+}
 /*
  * usage <appname> [-f] <filepath> -d [<path/to/outp/file>] -k [<key>] -d [decrypt] -e [encrypt] -t [<des>|<aes128/192/256>|<kal128/256/512>]
  */
@@ -229,6 +256,8 @@ int main(int argc, char** argv){
 		.fd_src 	= 	0,
 		.fd_dst 	= 	0,
 		.numb		=   0,
+		.d1			= 	0,
+		.d2			=	0,
 		.enc_flag 	= 	ENC,
 		.alg_type 	= 	ANONE
 	};
@@ -262,6 +291,9 @@ int main(int argc, char** argv){
 		case KAL:
 			block = new kalyna128_256();
 			break;
+		case EUCLID:
+			printf("LDT equals %d\n", euclid(arguments.d1, arguments.d2));
+			return 0;
 		default:
 			printf("ERROR: incorect chipher type\n");
 			return -1;
