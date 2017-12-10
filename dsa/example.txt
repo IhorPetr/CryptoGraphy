@@ -1,0 +1,8 @@
+useing gpg:
+1. kreate private-publik key:
+	> gpg --gen-key
+2. create test file
+3. sign file
+	> gpg --sign example.txt
+4. verify file
+	> gpg --verify example.txt
